@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberStrategy Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b12;
+    --bg2: #0d1420;
+    --bg3: #111827;
+    --bg4: #1a2235;
+    --border: #1e2d45;
+    --border2: #263548;
+    --accent: #0ea5e9;
+    --accent2: #38bdf8;
+    --amber: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --purple: #a855f7;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --white: #f8fafc;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(14, 165, 233, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ─── HEADER ─── */
+  header {
+    padding: 32px 0 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px; font-weight: 600; color: white;
+    box-shadow: 0 0 20px rgba(14,165,233,0.3);
+  }
+
+  .logo-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--white);
+  }
+
+  .logo-text p {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text3);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(14,165,233,0.08);
+    border: 1px solid rgba(14,165,233,0.2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ─── TABS ─── */
+  .tab-bar {
+    display: flex;
+    gap: 2px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 9px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+    justify-content: center;
+  }
+
+  .tab-btn:hover { color: var(--text2); background: var(--bg3); }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(14,165,233,0.15), rgba(29,78,216,0.15));
+    color: var(--accent2);
+    border: 1px solid rgba(14,165,233,0.2);
+    box-shadow: 0 0 12px rgba(14,165,233,0.08);
+  }
+
+  .tab-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  /* ─── PANELS ─── */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px;
+    gap: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+
+  .section-subtitle {
+    font-size: 13px; color: var(--text2);
+    margin-top: 5px; line-height: 1.5;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-title-icon {
+    width: 20px; height: 20px;
+    background: rgba(14,165,233,0.12);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+
+  /* ─── GRID LAYOUTS ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+  @media (max-width: 700px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* ─── FORM ELEMENTS ─── */
+  label {
+    display: block;
+    font-size: 11px; font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    padding: 10px 13px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+  }
+
+  textarea { min-height: 80px; }
+
+  select option { background: var(--bg3); }
+
+  .form-group { margin-bottom: 16px; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px;
+    border-radius: 7px; border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #1d4ed8);
+    color: white;
+    box-shadow: 0 0 14px rgba(14,165,233,0.25);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(14,165,233,0.4); }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent2); }
+
+  .btn-danger {
+    background: rgba(239,68,68,0.1);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.2);
+    font-size: 11px; padding: 5px 10px;
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+  .btn-green {
+    background: linear-gradient(135deg, #059669, #0d9488);
+    color: white;
+    box-shadow: 0 0 14px rgba(16,185,129,0.2);
+  }
+  .btn-green:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(16,185,129,0.35); }
+
+  /* ─── PHASE BANDS (90-day) ─── */
+  .phase-band {
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .phase-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+  }
+
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .phase-1 .phase-header { background: rgba(14,165,233,0.06); }
+  .phase-1 .phase-num { background: rgba(14,165,233,0.15); color: var(--accent2); }
+  .phase-1 { border-color: rgba(14,165,233,0.2); }
+
+  .phase-2 .phase-header { background: rgba(245,158,11,0.06); }
+  .phase-2 .phase-num { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .phase-2 { border-color: rgba(245,158,11,0.2); }
+
+  .phase-3 .phase-header { background: rgba(16,185,129,0.06); }
+  .phase-3 .phase-num { background: rgba(16,185,129,0.15); color: var(--green); }
+  .phase-3 { border-color: rgba(16,185,129,0.2); }
+
+  .phase-label {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+  }
+
+  .phase-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  @media (max-width: 600px) { .phase-body { grid-template-columns: 1fr; } }
+
+  /* ─── PRIORITY ITEMS ─── */
+  .priority-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .priority-cat {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* ─── STAKEHOLDER TABLE ─── */
+  .sh-table-wrap { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.01); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-high { background: rgba(239,68,68,0.12); color: #f87171; }
+  .badge-med  { background: rgba(245,158,11,0.12); color: #fbbf24; }
+  .badge-low  { background: rgba(100,116,139,0.15); color: var(--text3); }
+  .badge-green { background: rgba(16,185,129,0.12); color: #34d399; }
+  .badge-blue { background: rgba(14,165,233,0.12); color: var(--accent2); }
+
+  /* ─── STAKEHOLDER MATRIX GRID ─── */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 40px 1fr 1fr;
+    grid-template-rows: 1fr 1fr 40px;
+    gap: 4px;
+    height: 360px;
+    margin-top: 20px;
+  }
+
+  .matrix-cell {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .matrix-cell-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text3);
+    letter-spacing: 0.8px; text-transform: uppercase;
+    position: absolute; top: 8px; left: 10px;
+  }
+
+  .matrix-axis-label {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    writing-mode: vertical-rl; text-orientation: mixed;
+  }
+
+  .matrix-axis-bottom {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .matrix-chip {
+    display: inline-block;
+    background: rgba(14,165,233,0.12);
+    border: 1px solid rgba(14,165,233,0.2);
+    color: var(--text);
+    font-size: 11px; padding: 3px 7px;
+    border-radius: 4px; margin: 2px;
+  }
+
+  .matrix-hl { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); }
+  .matrix-hh { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); }
+  .matrix-ll { background: rgba(100,116,139,0.08); border-color: var(--border); color: var(--text3); }
+  .matrix-lh { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); color: #fbbf24; }
+
+  /* ─── SWOT ─── */
+  .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .swot-cell {
+    border-radius: 10px;
+    padding: 18px;
+    min-height: 160px;
+  }
+
+  .swot-s { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); }
+  .swot-w { background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15); }
+  .swot-o { background: rgba(14,165,233,0.05); border: 1px solid rgba(14,165,233,0.15); }
+  .swot-t { background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.15); }
+
+  .swot-title {
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+
+  .swot-s .swot-title { color: #34d399; }
+  .swot-w .swot-title { color: #f87171; }
+  .swot-o .swot-title { color: var(--accent2); }
+  .swot-t .swot-title { color: #fbbf24; }
+
+  .swot-items { list-style: none; }
+  .swot-items li {
+    font-size: 12px; color: var(--text2);
+    padding: 4px 0;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .swot-items li::before { content: '›'; color: var(--text3); flex-shrink: 0; }
+
+  .swot-add {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .swot-add input { font-size: 12px; padding: 7px 10px; }
+  .swot-add .btn { padding: 7px 12px; font-size: 11px; }
+
+  /* ─── ROADMAP ─── */
+  .roadmap-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .roadmap-item:hover { border-color: var(--border2); }
+
+  .roadmap-rank {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .rank-critical { background: rgba(239,68,68,0.15); color: #f87171; }
+  .rank-high { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .rank-medium { background: rgba(14,165,233,0.12); color: var(--accent2); }
+  .rank-low { background: rgba(100,116,139,0.12); color: var(--text3); }
+
+  .roadmap-content { flex: 1; }
+  .roadmap-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .roadmap-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .roadmap-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3); letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .roadmap-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+  /* ─── POLICY BUILDER ─── */
+  .policy-template {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .policy-template:hover { border-color: var(--accent); background: rgba(14,165,233,0.04); }
+  .policy-template.selected { border-color: var(--accent); background: rgba(14,165,233,0.08); box-shadow: 0 0 12px rgba(14,165,233,0.1); }
+  .policy-template-icon { font-size: 24px; margin-bottom: 8px; }
+  .policy-template-name { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--text); }
+  .policy-template-desc { font-size: 11px; color: var(--text3); margin-top: 4px; line-height: 1.4; }
+
+  /* ─── OUTPUT BOX ─── */
+  .output-box {
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text2);
+    white-space: pre-wrap;
+    overflow-y: auto;
+    max-height: 600px;
+  }
+
+  .output-box h2 { font-family: 'Syne', sans-serif; color: var(--white); font-size: 18px; margin-bottom: 8px; }
+  .output-box h3 { font-family: 'Syne', sans-serif; color: var(--accent2); font-size: 13px; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .output-box p { margin-bottom: 8px; }
+  .output-box ul { padding-left: 18px; margin-bottom: 8px; }
+  .output-box li { margin-bottom: 3px; }
+  .output-box .divider { border-top: 1px solid var(--border); margin: 16px 0; }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-bar {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  /* ─── METRIC CARDS ─── */
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .metric-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .metric-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--white); line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* ─── EXEC BRIEF ─── */
+  .exec-section { margin-bottom: 24px; }
+  .exec-section-title {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--accent2); text-transform: uppercase; letter-spacing: 1.2px;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--text3); font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .empty-state-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* ─── TABS (inner) ─── */
+  .inner-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+  .inner-tab {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 600; color: var(--text3);
+    cursor: pointer; background: transparent; transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .inner-tab:hover { color: var(--text2); }
+  .inner-tab.active { background: rgba(14,165,233,0.08); border-color: rgba(14,165,233,0.25); color: var(--accent2); }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--green);
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 13px; color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ─── SEPARATOR LABEL ─── */
+  .sep-label {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text3);
+    letter-spacing: 1px; text-transform: uppercase;
+    margin: 20px 0 16px;
+  }
+  .sep-label::before, .sep-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">CS</div>
+      <div class="logo-text">
+        <h1>CyberStrategy Workbench</h1>
+        <p>Security Leadership Planning Suite</p>
+      </div>
+    </div>
+    <div class="header-badge">v2.0 · 2026</div>
+  </header>
+
+  <!-- NAV TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('plan')">
+      <div class="tab-dot"></div> 90-Day Plan
+    </button>
+    <button class="tab-btn" onclick="switchTab('stakeholders')">
+      <div class="tab-dot"></div> Stakeholders
+    </button>
+    <button class="tab-btn" onclick="switchTab('roadmap')">
+      <div class="tab-dot"></div> Roadmap
+    </button>
+    <button class="tab-btn" onclick="switchTab('policy')">
+      <div class="tab-dot"></div> Policy Builder
+    </button>
+    <button class="tab-btn" onclick="switchTab('brief')">
+      <div class="tab-dot"></div> Exec Brief
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 1: 90-DAY PLAN
+  ══════════════════════════════════════════ -->
+  <div id="tab-plan" class="panel active">
+    <div class="section-header">
+      <div>
+        <div class="section-title">90-Day Strategic Plan</div>
+        <div class="section-subtitle">Build your CISO onboarding or program reset roadmap across three phases.</div>
+      </div>
+      <button class="btn btn-primary" onclick="exportPlan()">↓ Export Plan</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">🏢</div> Organization Context</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Organization Name</label>
+          <input type="text" id="org-name" placeholder="e.g., Acme Corporation">
+        </div>
+        <div class="form-group">
+          <label>Your Role / Title</label>
+          <input type="text" id="role-title" placeholder="e.g., CISO, VP of Security">
+        </div>
+        <div class="form-group">
+          <label>Primary Security Mandate</label>
+          <input type="text" id="mandate" placeholder="e.g., Mature security posture, achieve compliance">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="text" id="start-date" placeholder="e.g., Q1 2026">
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 1: Days 1-30 -->
+    <div class="phase-band phase-1">
+      <div class="phase-header">
+        <div class="phase-num">DAYS 01–30</div>
+        <div class="phase-label">Learn & Listen</div>
+      </div>
+      <div class="phase-body">
+        <div class="priority-item">
+          <div class="priority-cat">👥 People</div>
+          <textarea id="p1-people" placeholder="Meet key stakeholders, identify allies, understand team capabilities..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">⚙️ Process</div>
+          <textarea id="p1-process" placeholder="Review existing policies, audit current security processes, understand compliance posture..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🖥️ Technology</div>
+          <textarea id="p1-tech" placeholder="Inventory existing tools, assess coverage gaps, review incident history..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🏛️ Governance</div>
+          <textarea id="p1-gov" placeholder="Understand reporting structure, review risk register, assess board-level security expectations..." rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2: Days 31-60 -->
+    <div class="phase-band phase-2">
+      <div class="phase-header">
+        <div class="phase-num">DAYS 31–60</div>
+        <div class="phase-label">Assess & Align</div>
+      </div>
+      <div class="phase-body">
+        <div class="priority-item">
+          <div class="priority-cat">👥 People</div>
+          <textarea id="p2-people" placeholder="Conduct performance reviews, identify skill gaps, begin team restructuring plans..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">⚙️ Process</div>
+          <textarea id="p2-process" placeholder="Complete gap analysis, draft updated policy framework, define security KPIs..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🖥️ Technology</div>
+          <textarea id="p2-tech" placeholder="Prioritize tool gaps, develop business cases for critical investments, establish a baseline..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🏛️ Governance</div>
+          <textarea id="p2-gov" placeholder="Present initial findings to leadership, establish security steering committee, align with risk tolerance..." rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3: Days 61-90 -->
+    <div class="phase-band phase-3">
+      <div class="phase-header">
+        <div class="phase-num">DAYS 61–90</div>
+        <div class="phase-label">Act & Deliver</div>
+      </div>
+      <div class="phase-body">
+        <div class="priority-item">
+          <div class="priority-cat">👥 People</div>
+          <textarea id="p3-people" placeholder="Implement team changes, launch training programs, establish security culture initiatives..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">⚙️ Process</div>
+          <textarea id="p3-process" placeholder="Publish revised policies, roll out new security processes, establish metrics reporting cadence..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🖥️ Technology</div>
+          <textarea id="p3-tech" placeholder="Begin priority tool implementations, establish monitoring baselines, deploy quick wins..." rows="4"></textarea>
+        </div>
+        <div class="priority-item">
+          <div class="priority-cat">🏛️ Governance</div>
+          <textarea id="p3-gov" placeholder="Present 90-day report to board, launch security roadmap, establish quarterly review cadence..." rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div id="plan-output" style="display:none;">
+      <div class="sep-label">Generated Plan</div>
+      <div class="output-box" id="plan-output-box"></div>
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <button class="btn btn-secondary" onclick="copyOutput('plan-output-box')">⎘ Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 2: STAKEHOLDERS
+  ══════════════════════════════════════════ -->
+  <div id="tab-stakeholders" class="panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Stakeholder Matrix</div>
+        <div class="section-subtitle">Map influence and interest to define your engagement strategy.</div>
+      </div>
+      <button class="btn btn-primary" onclick="showSHForm()">+ Add Stakeholder</button>
+    </div>
+
+    <!-- Add form (hidden by default) -->
+    <div id="sh-form" class="card" style="display:none;">
+      <div class="card-title"><div class="card-title-icon">+</div> New Stakeholder</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="sh-name" placeholder="Full name">
+        </div>
+        <div class="form-group">
+          <label>Title / Role</label>
+          <input type="text" id="sh-role" placeholder="e.g., CFO, IT Director">
+        </div>
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" id="sh-dept" placeholder="e.g., Finance, Legal">
+        </div>
+        <div class="form-group">
+          <label>Influence Level</label>
+          <select id="sh-influence">
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Interest in Security</label>
+          <select id="sh-interest">
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Disposition</label>
+          <select id="sh-disposition">
+            <option value="Champion">Champion</option>
+            <option value="Supporter">Supporter</option>
+            <option value="Neutral">Neutral</option>
+            <option value="Skeptic">Skeptic</option>
+            <option value="Blocker">Blocker</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Engagement Strategy</label>
+        <textarea id="sh-strategy" placeholder="How will you engage this stakeholder? What do they care about most?" rows="3"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" onclick="addStakeholder()">Add Stakeholder</button>
+        <button class="btn btn-secondary" onclick="hideSHForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="inner-tabs">
+      <button class="inner-tab active" onclick="switchInner('sh-list-view', this)">Table View</button>
+      <button class="inner-tab" onclick="switchInner('sh-matrix-view', this)">2×2 Matrix</button>
+    </div>
+
+    <!-- Table view -->
+    <div id="sh-list-view">
+      <div class="card" style="padding: 0; overflow:hidden;">
+        <div class="sh-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Influence</th>
+                <th>Interest</th>
+                <th>Disposition</th>
+                <th>Strategy</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sh-tbody">
+              <tr id="sh-empty-row">
+                <td colspan="8">
+                  <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    Add stakeholders to begin mapping your engagement landscape.
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrix view -->
+    <div id="sh-matrix-view" style="display:none;">
+      <div class="card">
+        <div class="card-title">Power / Interest Matrix</div>
+        <div class="matrix-grid">
+          <div class="matrix-axis-label" style="grid-row: 1 / 3; grid-column: 1;">INFLUENCE →</div>
+          <div class="matrix-cell matrix-hl" style="grid-row:1; grid-column:2;">
+            <div class="matrix-cell-label">Monitor — Low Interest, High Influence</div>
+            <div id="matrix-hl" style="margin-top:24px;"></div>
+          </div>
+          <div class="matrix-cell matrix-hh" style="grid-row:1; grid-column:3;">
+            <div class="matrix-cell-label">Manage Closely — High Interest, High Influence</div>
+            <div id="matrix-hh" style="margin-top:24px;"></div>
+          </div>
+          <div class="matrix-cell matrix-ll" style="grid-row:2; grid-column:2;">
+            <div class="matrix-cell-label">Monitor — Low Interest, Low Influence</div>
+            <div id="matrix-ll" style="margin-top:24px;"></div>
+          </div>
+          <div class="matrix-cell matrix-lh" style="grid-row:2; grid-column:3;">
+            <div class="matrix-cell-label">Keep Informed — High Interest, Low Influence</div>
+            <div id="matrix-lh" style="margin-top:24px;"></div>
+          </div>
+          <div class="matrix-axis-bottom" style="grid-row:3; grid-column:2; grid-column-end: 4;">INTEREST →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 3: ROADMAP
+  ══════════════════════════════════════════ -->
+  <div id="tab-roadmap" class="panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Security Roadmap</div>
+        <div class="section-subtitle">Prioritize initiatives by risk, impact, and feasibility. Build your gap-to-action plan.</div>
+      </div>
+      <button class="btn btn-primary" onclick="showRMForm()">+ Add Initiative</button>
+    </div>
+
+    <!-- Add form -->
+    <div id="rm-form" class="card" style="display:none;">
+      <div class="card-title"><div class="card-title-icon">+</div> New Initiative</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Initiative Title</label>
+          <input type="text" id="rm-title" placeholder="e.g., Implement MFA across all systems">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="rm-category">
+            <option>Identity & Access</option>
+            <option>Threat Detection</option>
+            <option>Vulnerability Management</option>
+            <option>Data Protection</option>
+            <option>Cloud Security</option>
+            <option>AI/ML Security</option>
+            <option>Governance & Compliance</option>
+            <option>Incident Response</option>
+            <option>Security Awareness</option>
+            <option>Third-Party Risk</option>
+            <option>Network Security</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="rm-priority">
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Timeline</label>
+          <select id="rm-timeline">
+            <option>Q1 2026</option>
+            <option>Q2 2026</option>
+            <option>Q3 2026</option>
+            <option>Q4 2026</option>
+            <option>H1 2027</option>
+            <option>H2 2027</option>
+            <option>2028+</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estimated Effort</label>
+          <select id="rm-effort">
+            <option>Low (< 1 month)</option>
+            <option>Medium (1–3 months)</option>
+            <option>High (3–6 months)</option>
+            <option>Very High (6+ months)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Business Justification</label>
+          <input type="text" id="rm-justify" placeholder="Risk reduced, compliance achieved, incident prevented...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="rm-desc" placeholder="Briefly describe the initiative, current state, and target state..." rows="3"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-primary" onclick="addRoadmapItem()">Add Initiative</button>
+        <button class="btn btn-secondary" onclick="hideRMForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- SWOT sub-tab -->
+    <div class="inner-tabs">
+      <button class="inner-tab active" onclick="switchInner('rm-list', this)">Initiative List</button>
+      <button class="inner-tab" onclick="switchInner('rm-swot', this)">SWOT Analysis</button>
+    </div>
+
+    <div id="rm-list">
+      <div id="rm-items-container">
+        <div class="empty-state" id="rm-empty">
+          <div class="empty-state-icon">🗺️</div>
+          Add security initiatives to build your strategic roadmap.
+        </div>
+      </div>
+    </div>
+
+    <div id="rm-swot" style="display:none;">
+      <div class="swot-grid">
+        <div class="swot-cell swot-s">
+          <div class="swot-title">💪 Strengths</div>
+          <ul class="swot-items" id="swot-s-list"></ul>
+          <div class="swot-add">
+            <input type="text" id="swot-s-input" placeholder="Add a strength..." onkeydown="if(event.key==='Enter')addSwot('s')">
+            <button class="btn btn-secondary" onclick="addSwot('s')">+</button>
+          </div>
+        </div>
+        <div class="swot-cell swot-w">
+          <div class="swot-title">⚠️ Weaknesses</div>
+          <ul class="swot-items" id="swot-w-list"></ul>
+          <div class="swot-add">
+            <input type="text" id="swot-w-input" placeholder="Add a weakness..." onkeydown="if(event.key==='Enter')addSwot('w')">
+            <button class="btn btn-secondary" onclick="addSwot('w')">+</button>
+          </div>
+        </div>
+        <div class="swot-cell swot-o">
+          <div class="swot-title">🚀 Opportunities</div>
+          <ul class="swot-items" id="swot-o-list"></ul>
+          <div class="swot-add">
+            <input type="text" id="swot-o-input" placeholder="Add an opportunity..." onkeydown="if(event.key==='Enter')addSwot('o')">
+            <button class="btn btn-secondary" onclick="addSwot('o')">+</button>
+          </div>
+        </div>
+        <div class="swot-cell swot-t">
+          <div class="swot-title">🔥 Threats</div>
+          <ul class="swot-items" id="swot-t-list"></ul>
+          <div class="swot-add">
+            <input type="text" id="swot-t-input" placeholder="Add a threat..." onkeydown="if(event.key==='Enter')addSwot('t')">
+            <button class="btn btn-secondary" onclick="addSwot('t')">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 4: POLICY BUILDER
+  ══════════════════════════════════════════ -->
+  <div id="tab-policy" class="panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Policy Builder</div>
+        <div class="section-subtitle">Generate structured security policies tailored to your organization.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="card-title-icon">📋</div> Select Policy Template</div>
+      <div class="grid-3">
+        <div class="policy-template selected" onclick="selectPolicy(this, 'vuln')" id="pt-vuln">
+          <div class="policy-template-icon">🔍</div>
+          <div class="policy-template-name">Vulnerability Management</div>
+          <div class="policy-template-desc">Scanning, disclosure, and remediation timelines</div>
+        </div>
+        <div class="policy-template" onclick="selectPolicy(this, 'cloud')" id="pt-cloud">
+          <div class="policy-template-icon">☁️</div>
+          <div class="policy-template-name">Cloud Security</div>
+          <div class="policy-template-desc">Cloud usage standards, configuration, and access</div>
+        </div>
+        <div class="policy-template" onclick="selectPolicy(this, 'ai')" id="pt-ai">
+          <div class="policy-template-icon">🤖</div>
+          <div class="policy-template-name">AI Security</div>
+          <div class="policy-template-desc">Acceptable use of AI tools and governance</div>
+        </div>
+        <div class="policy-template" onclick="selectPolicy(this, 'access')" id="pt-access">
+          <div class="policy-template-icon">🔑</div>
+          <div class="policy-template-name">Access Control</div>
+          <div class="policy-template-desc">Identity, authentication, and least privilege</div>
+        </div>
+        <div class="policy-template" onclick="selectPolicy(this, 'ir')" id="pt-ir">
+          <div class="policy-template-icon">🚨</div>
+          <div class="policy-template-name">Incident Response</div>
+          <div class="policy-template-desc">Detection, escalation, and response procedures</div>
+        </div>
+        <div class="policy-template" onclick="selectPolicy(this, 'data')" id="pt-data">
+          <div class="policy-template-icon">🗄️</div>
+          <div class="policy-template-name">Data Classification</div>
+          <div class="policy-template-desc">Data handling, labeling, and protection standards</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><div class="card-title-icon">🏢</div> Policy Details</div>
+        <div class="form-group">
+          <label>Organization Name</label>
+          <input type="text" id="pol-org" placeholder="e.g., Acme Corporation">
+        </div>
+        <div class="form-group">
+          <label>Policy Owner</label>
+          <input type="text" id="pol-owner" placeholder="e.g., Chief Information Security Officer">
+        </div>
+        <div class="form-group">
+          <label>Version</label>
+          <input type="text" id="pol-version" value="1.0">
+        </div>
+        <div class="form-group">
+          <label>Review Cycle</label>
+          <select id="pol-review">
+            <option>Annual</option>
+            <option>Semi-Annual</option>
+            <option>Quarterly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Compliance Framework (optional)</label>
+          <select id="pol-framework">
+            <option value="">None specified</option>
+            <option>NIST CSF</option>
+            <option>ISO 27001</option>
+            <option>SOC 2</option>
+            <option>HIPAA</option>
+            <option>PCI DSS</option>
+            <option>CIS Controls</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Scope</label>
+          <textarea id="pol-scope" placeholder="Who and what does this policy apply to?" rows="3"></textarea>
+        </div>
+        <button class="btn btn-green" onclick="generatePolicy()" style="width:100%; justify-content:center; margin-top:4px;">
+          ⚡ Generate Policy Document
+        </button>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px 12px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <div class="card-title" style="margin:0;">Policy Output</div>
+          <button class="btn btn-secondary" onclick="copyOutput('policy-output-box')" style="padding:5px 12px; font-size:11px;">⎘ Copy</button>
+        </div>
+        <div class="output-box" id="policy-output-box" style="border:none; border-radius:0; padding:20px; max-height: 500px;">
+          <div class="empty-state">
+            <div class="empty-state-icon">📄</div>
+            Select a template and fill in the details, then click Generate.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TAB 5: EXEC BRIEF
+  ══════════════════════════════════════════ -->
+  <div id="tab-brief" class="panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Executive Brief</div>
+        <div class="section-subtitle">Synthesize your strategy into a board-ready security summary.</div>
+      </div>
+      <button class="btn btn-primary" onclick="generateBrief()">⚡ Generate Brief</button>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon">📊</div> Security Metrics</div>
+          <div class="grid-2" style="gap:14px;">
+            <div class="form-group">
+              <label>Security Program Maturity (1–5)</label>
+              <input type="number" id="m-maturity" min="1" max="5" placeholder="e.g., 2">
+            </div>
+            <div class="form-group">
+              <label>Critical Vulnerabilities Open</label>
+              <input type="number" id="m-vulns" placeholder="e.g., 47">
+            </div>
+            <div class="form-group">
+              <label>MFA Coverage (%)</label>
+              <input type="number" id="m-mfa" min="0" max="100" placeholder="e.g., 72">
+            </div>
+            <div class="form-group">
+              <label>Policy Compliance (%)</label>
+              <input type="number" id="m-compliance" min="0" max="100" placeholder="e.g., 81">
+            </div>
+            <div class="form-group">
+              <label>Mean Time to Detect (hours)</label>
+              <input type="number" id="m-mttd" placeholder="e.g., 24">
+            </div>
+            <div class="form-group">
+              <label>Security Training Completion (%)</label>
+              <input type="number" id="m-training" min="0" max="100" placeholder="e.g., 68">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><div class="card-title-icon">💬</div> Narrative Input</div>
+          <div class="form-group">
+            <label>Top 3 Security Risks (comma separated)</label>
+            <textarea id="exec-risks" placeholder="e.g., Ransomware, Supply chain attacks, Insider threats" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Key Achievements This Period</label>
+            <textarea id="exec-wins" placeholder="e.g., Deployed EDR to 100% of endpoints, completed SOC 2 audit..." rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Investment Request (optional)</label>
+            <textarea id="exec-ask" placeholder="e.g., $800K for SIEM upgrade to reduce MTTD by 60%..." rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px 12px; border-bottom: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <div class="card-title" style="margin:0;">Executive Brief Output</div>
+          <button class="btn btn-secondary" onclick="copyOutput('brief-output-box')" style="padding:5px 12px; font-size:11px;">⎘ Copy</button>
+        </div>
+        <div class="output-box" id="brief-output-box" style="border:none; border-radius:0; padding:20px; max-height: 600px;">
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            Fill in the metrics and narrative, then click Generate Brief.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const state = {
+  stakeholders: [],
+  roadmap: [],
+  swot: { s: [], w: [], o: [], t: [] },
+  selectedPolicy: 'vuln'
+};
+
+// ═══════════════════════════════════════════════
+// TAB NAVIGATION
+// ═══════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = ['plan','stakeholders','roadmap','policy','brief'].indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+function switchInner(id, btn) {
+  const parent = btn.closest('.panel');
+  parent.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const targets = parent.querySelectorAll('[id^="' + id.split('-')[0] + '-"]');
+  targets.forEach(t => { t.style.display = 'none'; });
+  document.getElementById(id).style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════
+// 90-DAY PLAN
+// ═══════════════════════════════════════════════
+function exportPlan() {
+  const org = v('org-name') || '[Organization]';
+  const role = v('role-title') || '[Role]';
+  const mandate = v('mandate') || '[Mandate]';
+  const date = v('start-date') || '[Date]';
+
+  const out = document.getElementById('plan-output-box');
+  out.innerHTML = `
+<h2>90-Day Security Strategic Plan</h2>
+<p><strong>Organization:</strong> ${org} &nbsp;|&nbsp; <strong>Role:</strong> ${role}</p>
+<p><strong>Mandate:</strong> ${mandate} &nbsp;|&nbsp; <strong>Start:</strong> ${date}</p>
+<div class="divider"></div>
+
+<h3>Phase 1 — Days 1–30: Learn & Listen</h3>
+<p><strong>People:</strong> ${v('p1-people') || '—'}</p>
+<p><strong>Process:</strong> ${v('p1-process') || '—'}</p>
+<p><strong>Technology:</strong> ${v('p1-tech') || '—'}</p>
+<p><strong>Governance:</strong> ${v('p1-gov') || '—'}</p>
+<div class="divider"></div>
+
+<h3>Phase 2 — Days 31–60: Assess & Align</h3>
+<p><strong>People:</strong> ${v('p2-people') || '—'}</p>
+<p><strong>Process:</strong> ${v('p2-process') || '—'}</p>
+<p><strong>Technology:</strong> ${v('p2-tech') || '—'}</p>
+<p><strong>Governance:</strong> ${v('p2-gov') || '—'}</p>
+<div class="divider"></div>
+
+<h3>Phase 3 — Days 61–90: Act & Deliver</h3>
+<p><strong>People:</strong> ${v('p3-people') || '—'}</p>
+<p><strong>Process:</strong> ${v('p3-process') || '—'}</p>
+<p><strong>Technology:</strong> ${v('p3-tech') || '—'}</p>
+<p><strong>Governance:</strong> ${v('p3-gov') || '—'}</p>`;
+
+  document.getElementById('plan-output').style.display = 'block';
+  document.getElementById('plan-output').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════════
+// STAKEHOLDERS
+// ═══════════════════════════════════════════════
+function showSHForm() { document.getElementById('sh-form').style.display = 'block'; }
+function hideSHForm() { document.getElementById('sh-form').style.display = 'none'; }
+
+function addStakeholder() {
+  const name = v('sh-name');
+  if (!name) { alert('Please enter a name.'); return; }
+
+  const sh = {
+    id: Date.now(),
+    name, role: v('sh-role'), dept: v('sh-dept'),
+    influence: v('sh-influence'), interest: v('sh-interest'),
+    disposition: v('sh-disposition'), strategy: v('sh-strategy')
+  };
+  state.stakeholders.push(sh);
+  renderStakeholders();
+  hideSHForm();
+  ['sh-name','sh-role','sh-dept','sh-strategy'].forEach(id => document.getElementById(id).value = '');
+  showToast('Stakeholder added');
+}
+
+function removeStakeholder(id) {
+  state.stakeholders = state.stakeholders.filter(s => s.id !== id);
+  renderStakeholders();
+}
+
+function renderStakeholders() {
+  const tbody = document.getElementById('sh-tbody');
+  const empty = document.getElementById('sh-empty-row');
+
+  if (state.stakeholders.length === 0) {
+    empty.style.display = '';
+    tbody.querySelectorAll('.sh-row').forEach(r => r.remove());
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.querySelectorAll('.sh-row').forEach(r => r.remove());
+
+  state.stakeholders.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.className = 'sh-row';
+    const dispColor = { Champion: 'badge-green', Supporter: 'badge-blue', Neutral: '', Skeptic: 'badge-med', Blocker: 'badge-high' }[s.disposition] || '';
+    tr.innerHTML = `
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--text2)">${s.role}</td>
+      <td style="color:var(--text3)">${s.dept}</td>
+      <td><span class="badge badge-${s.influence === 'High' ? 'high' : s.influence === 'Medium' ? 'med' : 'low'}">${s.influence}</span></td>
+      <td><span class="badge badge-${s.interest === 'High' ? 'high' : s.interest === 'Medium' ? 'med' : 'low'}">${s.interest}</span></td>
+      <td><span class="badge ${dispColor}">${s.disposition}</span></td>
+      <td style="font-size:12px; color:var(--text3); max-width:200px;">${s.strategy || '—'}</td>
+      <td><button class="btn btn-danger" onclick="removeStakeholder(${s.id})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  renderMatrix();
+}
+
+function renderMatrix() {
+  ['hh','hl','lh','ll'].forEach(k => { document.getElementById('matrix-' + k).innerHTML = ''; });
+
+  state.stakeholders.forEach(s => {
+    const key = (s.influence === 'High' ? 'h' : 'l') + (s.interest === 'High' ? 'h' : 'l');
+    const el = document.getElementById('matrix-' + key);
+    if (el) {
+      const chip = document.createElement('span');
+      chip.className = 'matrix-chip matrix-' + key;
+      chip.textContent = s.name;
+      el.appendChild(chip);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ROADMAP
+// ═══════════════════════════════════════════════
+function showRMForm() { document.getElementById('rm-form').style.display = 'block'; }
+function hideRMForm() { document.getElementById('rm-form').style.display = 'none'; }
+
+function addRoadmapItem() {
+  const title = v('rm-title');
+  if (!title) { alert('Please enter a title.'); return; }
+  const item = {
+    id: Date.now(),
+    title, category: v('rm-category'),
+    priority: v('rm-priority'),
+    timeline: v('rm-timeline'),
+    effort: v('rm-effort'),
+    justify: v('rm-justify'),
+    desc: v('rm-desc')
+  };
+  state.roadmap.push(item);
+  renderRoadmap();
+  hideRMForm();
+  ['rm-title','rm-justify','rm-desc'].forEach(id => document.getElementById(id).value = '');
+  showToast('Initiative added');
+}
+
+function removeRoadmapItem(id) {
+  state.roadmap = state.roadmap.filter(r => r.id !== id);
+  renderRoadmap();
+}
+
+const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+
+function renderRoadmap() {
+  const container = document.getElementById('rm-items-container');
+  const empty = document.getElementById('rm-empty');
+
+  if (state.roadmap.length === 0) {
+    container.innerHTML = '';
+    container.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
+
+  const sorted = [...state.roadmap].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+  container.innerHTML = '';
+
+  sorted.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'roadmap-item';
+    const rankClass = 'rank-' + item.priority;
+    const rankLabel = item.priority.charAt(0).toUpperCase() + item.priority.slice(1);
+    div.innerHTML = `
+      <div class="roadmap-rank ${rankClass}">${idx + 1}</div>
+      <div class="roadmap-content">
+        <div class="roadmap-title">${item.title}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px;">${item.desc || ''}</div>
+        <div class="roadmap-meta">
+          <div class="roadmap-tag">📁 ${item.category}</div>
+          <div class="roadmap-tag">📅 ${item.timeline}</div>
+          <div class="roadmap-tag">⏱ ${item.effort}</div>
+          ${item.justify ? `<div class="roadmap-tag">💡 ${item.justify}</div>` : ''}
+        </div>
+      </div>
+      <div class="roadmap-actions">
+        <span class="badge badge-${item.priority === 'critical' ? 'high' : item.priority === 'high' ? 'med' : item.priority === 'medium' ? 'blue' : 'low'}">${rankLabel}</span>
+        <button class="btn btn-danger" onclick="removeRoadmapItem(${item.id})">✕</button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SWOT
+// ═══════════════════════════════════════════════
+function addSwot(type) {
+  const input = document.getElementById('swot-' + type + '-input');
+  const val = input.value.trim();
+  if (!val) return;
+  state.swot[type].push(val);
+  input.value = '';
+  renderSwot(type);
+}
+
+function removeSwot(type, idx) {
+  state.swot[type].splice(idx, 1);
+  renderSwot(type);
+}
+
+function renderSwot(type) {
+  const list = document.getElementById('swot-' + type + '-list');
+  list.innerHTML = '';
+  state.swot[type].forEach((item, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `${item} <button onclick="removeSwot('${type}', ${idx})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px;">✕</button>`;
+    list.appendChild(li);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// POLICY BUILDER
+// ═══════════════════════════════════════════════
+function selectPolicy(el, type) {
+  document.querySelectorAll('.policy-template').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedPolicy = type;
+}
+
+const policyTemplates = {
+  vuln: {
+    name: 'Vulnerability Management Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy establishes the requirements for identifying, evaluating, and remediating security vulnerabilities across all information systems owned or operated by {org}.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Policy Requirements', content: `1. Vulnerability Scanning: All systems must be scanned at least monthly using approved scanning tools. Critical systems must be scanned weekly.
+
+2. Remediation Timelines:
+   • Critical (CVSS 9.0–10.0): Remediate within 72 hours
+   • High (CVSS 7.0–8.9): Remediate within 14 days
+   • Medium (CVSS 4.0–6.9): Remediate within 30 days
+   • Low (CVSS 0.1–3.9): Remediate within 90 days
+
+3. Exception Process: Exceptions must be documented, risk-accepted by the CISO, and reviewed quarterly.
+
+4. Vendor/Third-Party Vulnerabilities: Tracked through the third-party risk management program with equivalent remediation timelines.` },
+      { title: 'Roles & Responsibilities', content: `• Policy Owner: Responsible for policy maintenance and oversight\n• Security Team: Conducts scans, tracks remediation\n• System Owners: Responsible for patching within defined timelines\n• IT Operations: Implements patches and maintains records` },
+      { title: 'Compliance & Enforcement', content: 'Non-compliance with this policy may result in disciplinary action up to and including termination. Systems not meeting remediation timelines may be isolated or decommissioned at the discretion of the CISO.' },
+      { title: 'Policy Review', content: 'This policy shall be reviewed {review} and updated as required to reflect changes in the threat landscape, technology environment, or regulatory requirements.' }
+    ]
+  },
+  cloud: {
+    name: 'Cloud Security Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy defines security requirements for the acquisition, configuration, and use of cloud computing services at {org}, ensuring that cloud deployments are secure, compliant, and aligned with organizational risk tolerance.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Approved Cloud Services', content: 'All cloud services must be approved through the IT/Security procurement process prior to use. Unauthorized cloud service use (Shadow IT) is prohibited and subject to enforcement.' },
+      { title: 'Configuration Requirements', content: `1. All cloud environments must enforce multi-factor authentication for administrative access.
+2. Publicly exposed storage (S3 buckets, blob storage, etc.) is prohibited without explicit business justification and CISO approval.
+3. Encryption at rest and in transit is mandatory for all cloud workloads handling sensitive data.
+4. Cloud environments must be continuously monitored using approved Cloud Security Posture Management (CSPM) tooling.
+5. Infrastructure as Code (IaC) must be scanned for misconfigurations before deployment.` },
+      { title: 'Data Residency & Sovereignty', content: 'Data classified as Confidential or Restricted may only be stored in cloud regions approved by Legal and Compliance. Cross-border data transfers must comply with applicable regulations.' },
+      { title: 'Shared Responsibility', content: 'Cloud providers operate under a shared responsibility model. {org} retains responsibility for data, identity management, application security, and network controls within cloud environments.' },
+      { title: 'Policy Review', content: 'This policy shall be reviewed {review}.' }
+    ]
+  },
+  ai: {
+    name: 'Artificial Intelligence Security Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy governs the secure and responsible use of artificial intelligence (AI) and machine learning (ML) tools at {org}, addressing risks to confidentiality, data integrity, and organizational reputation.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Approved AI Tools', content: 'Only AI tools that have undergone security review and received approval from the Security and Legal teams may be used for business purposes. A maintained inventory of approved tools shall be published and kept current.' },
+      { title: 'Prohibited Uses', content: `The following are prohibited without explicit written authorization:
+• Inputting confidential, proprietary, or personally identifiable information (PII) into public AI services
+• Using AI tools to circumvent security controls or conduct offensive security activities
+• Publishing AI-generated content as human-authored without disclosure
+• Using AI tools to process data in violation of applicable regulations (GDPR, HIPAA, etc.)` },
+      { title: 'Data Handling Requirements', content: '1. Employees must be trained on which data classifications are permitted for AI tool use.\n2. Sensitive data must not be used to train external AI models without a Data Processing Agreement.\n3. AI tool outputs must be reviewed by qualified personnel before use in critical decisions.' },
+      { title: 'AI Risk Assessment', content: 'New AI use cases must undergo a risk assessment covering: data privacy impact, model accuracy and bias risk, security vulnerability exposure, and regulatory compliance requirements.' },
+      { title: 'Policy Review', content: 'Given the rapidly evolving nature of AI technology, this policy shall be reviewed {review} at minimum.' }
+    ]
+  },
+  access: {
+    name: 'Access Control Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy establishes requirements for managing access to {org} information systems, applications, and data, based on principles of least privilege and need-to-know.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Access Provisioning', content: `1. All access requests must be formally submitted, approved by the resource owner, and provisioned by IT/Security.
+2. Access must be granted based on role and business need (Role-Based Access Control).
+3. Privileged access (admin rights) requires additional approval, MFA enforcement, and quarterly review.
+4. Contractor and vendor access must be scoped minimally, time-limited, and reviewed monthly.` },
+      { title: 'Authentication Requirements', content: '• Multi-factor authentication (MFA) is required for all remote access, cloud systems, and privileged accounts.\n• Passwords must meet minimum complexity requirements: 16+ characters, no dictionary words.\n• Password managers are encouraged and approved tools are provided by the organization.\n• Shared accounts are prohibited unless technically unavoidable and approved by the CISO.' },
+      { title: 'Access Reviews', content: 'All access must be reviewed: critical systems quarterly, standard systems semi-annually, and privileged accounts monthly. Unused access inactive for 90 days will be automatically revoked.' },
+      { title: 'Termination & Role Changes', content: 'Upon employee separation, all access must be revoked within 24 hours. Role changes require access review and modification within 5 business days.' },
+      { title: 'Policy Review', content: 'This policy shall be reviewed {review}.' }
+    ]
+  },
+  ir: {
+    name: 'Incident Response Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy establishes the framework for detecting, reporting, and responding to cybersecurity incidents at {org} to minimize impact, protect data, and restore normal operations as quickly as possible.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Incident Classification', content: `Severity 1 (Critical): Active breach, ransomware, data exfiltration — respond within 1 hour
+Severity 2 (High): Confirmed malware, unauthorized access — respond within 4 hours
+Severity 3 (Medium): Suspected compromise, policy violation — respond within 24 hours
+Severity 4 (Low): Security event requiring investigation — respond within 72 hours` },
+      { title: 'Response Phases', content: '1. Preparation: Maintain IR playbooks, train the team, conduct tabletop exercises quarterly.\n2. Identification: Detect and confirm incidents via SIEM, EDR, or user reports.\n3. Containment: Isolate affected systems to prevent spread.\n4. Eradication: Remove threat actors, malware, and unauthorized access.\n5. Recovery: Restore systems from clean backups, validate integrity.\n6. Lessons Learned: Conduct post-incident review within 5 business days.' },
+      { title: 'Notification & Escalation', content: 'Critical incidents must be reported to the CISO within 1 hour. Legal and Communications must be notified within 2 hours. Regulatory notification timelines (GDPR 72-hour, state breach laws) must be tracked by Legal.' },
+      { title: 'Documentation', content: 'All incidents must be documented in the incident tracking system including timeline, actions taken, evidence collected, and resolution details. Records must be retained per the data retention policy.' },
+      { title: 'Policy Review', content: 'This policy shall be reviewed {review} and after every Severity 1 incident.' }
+    ]
+  },
+  data: {
+    name: 'Data Classification Policy',
+    sections: [
+      { title: 'Purpose', content: 'This policy defines how {org} classifies and handles data assets to ensure appropriate protection based on sensitivity, regulatory requirements, and business value.' },
+      { title: 'Scope', content: '{scope}' },
+      { title: 'Classification Levels', content: `RESTRICTED — Highest sensitivity. Breach causes severe harm.
+Examples: PII, PHI, financial data, credentials, trade secrets
+Handling: Encrypted at rest and in transit, access strictly limited, DLP controls required
+
+CONFIDENTIAL — Significant internal value. Breach causes material harm.
+Examples: Internal strategy, contracts, security assessments, personnel data
+Handling: Access on need-to-know basis, encrypted in transit, not shared externally without approval
+
+INTERNAL — General business use. Not for public disclosure.
+Examples: Internal communications, project documents, meeting notes
+Handling: Standard access controls, not shared outside {org} without approval
+
+PUBLIC — Approved for external disclosure.
+Examples: Marketing materials, published reports, press releases
+Handling: No special controls required` },
+      { title: 'Labeling Requirements', content: 'All documents, emails, and data stores must be labeled with their classification. Electronic files must use classification labels in headers/footers or metadata. Unlabeled data defaults to CONFIDENTIAL classification.' },
+      { title: 'Data Handling Matrix', content: 'Full data handling requirements for each classification—including storage, transmission, printing, and disposal—are maintained in the Data Handling Standards document.' },
+      { title: 'Policy Review', content: 'This policy shall be reviewed {review}.' }
+    ]
+  }
+};
+
+function generatePolicy() {
+  const org = v('pol-org') || '[Organization Name]';
+  const owner = v('pol-owner') || '[Policy Owner]';
+  const version = v('pol-version') || '1.0';
+  const review = v('pol-review').toLowerCase();
+  const framework = v('pol-framework');
+  const scope = v('pol-scope') || 'All employees, contractors, vendors, and systems owned or operated by the organization.';
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const template = policyTemplates[state.selectedPolicy];
+  let html = `<h2>${template.name}</h2>`;
+  html += `<p><strong>Organization:</strong> ${org} &nbsp;|&nbsp; <strong>Owner:</strong> ${owner}</p>`;
+  html += `<p><strong>Version:</strong> ${version} &nbsp;|&nbsp; <strong>Effective Date:</strong> ${today}</p>`;
+  if (framework) html += `<p><strong>Framework Alignment:</strong> ${framework}</p>`;
+  html += `<div class="divider"></div>`;
+
+  template.sections.forEach(s => {
+    html += `<h3>${s.title}</h3>`;
+    const content = s.content
+      .replace(/\{org\}/g, org)
+      .replace(/\{scope\}/g, scope)
+      .replace(/\{review\}/g, review);
+    html += `<p>${content.replace(/\n/g, '<br>')}</p>`;
+  });
+
+  document.getElementById('policy-output-box').innerHTML = html;
+  showToast('Policy generated');
+}
+
+// ═══════════════════════════════════════════════
+// EXECUTIVE BRIEF
+// ═══════════════════════════════════════════════
+function generateBrief() {
+  const maturity = v('m-maturity') || '?';
+  const vulns = v('m-vulns') || '?';
+  const mfa = v('m-mfa') || '?';
+  const comp = v('m-compliance') || '?';
+  const mttd = v('m-mttd') || '?';
+  const training = v('m-training') || '?';
+  const risks = v('exec-risks') || 'Not specified';
+  const wins = v('exec-wins') || 'Not specified';
+  const ask = v('exec-ask');
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+  const maturityLabel = ['','Initial','Developing','Defined','Managed','Optimizing'][parseInt(maturity)] || 'Unknown';
+
+  let html = `<h2>Security Program Executive Brief</h2>`;
+  html += `<p style="color:var(--text3)">Period: ${today} &nbsp;|&nbsp; Prepared by: Security Leadership</p>`;
+  html += `<div class="divider"></div>`;
+
+  html += `<h3>Program Maturity</h3>`;
+  html += `<p>Current maturity level: <strong style="color:var(--accent2)">${maturity}/5 — ${maturityLabel}</strong>.</p>`;
+
+  html += `<h3>Key Metrics at a Glance</h3>`;
+  html += `<p>
+    <strong>Critical Vulnerabilities Open:</strong> ${vulns}<br>
+    <strong>MFA Coverage:</strong> ${mfa}%<br>
+    <strong>Policy Compliance:</strong> ${comp}%<br>
+    <strong>Mean Time to Detect:</strong> ${mttd} hours<br>
+    <strong>Security Training Completion:</strong> ${training}%
+  </p>`;
+
+  // Risk posture color
+  const mfaN = parseInt(mfa);
+  const mttdN = parseInt(mttd);
+  let posture = 'Moderate';
+  let postureColor = '#fbbf24';
+  if ((mfaN >= 90) && (mttdN <= 8)) { posture = 'Strong'; postureColor = '#34d399'; }
+  if ((mfaN < 60) || (mttdN > 48)) { posture = 'Elevated'; postureColor = '#f87171'; }
+
+  html += `<h3>Risk Posture</h3>`;
+  html += `<p>Overall risk posture: <strong style="color:${postureColor}">${posture}</strong>.</p>`;
+
+  html += `<h3>Top Risks Requiring Board Attention</h3><ul>`;
+  risks.split(',').forEach(r => {
+    if (r.trim()) html += `<li>${r.trim()}</li>`;
+  });
+  html += `</ul>`;
+
+  html += `<h3>Key Achievements</h3><p>${wins.replace(/\n/g, '<br>')}</p>`;
+
+  if (state.roadmap.length > 0) {
+    const topItems = [...state.roadmap]
+      .sort((a,b) => priorityOrder[a.priority] - priorityOrder[b.priority])
+      .slice(0,3);
+    html += `<h3>Strategic Priorities (Top 3)</h3><ul>`;
+    topItems.forEach(item => {
+      html += `<li><strong>${item.title}</strong> — ${item.timeline}${item.justify ? ' · ' + item.justify : ''}</li>`;
+    });
+    html += `</ul>`;
+  }
+
+  if (ask) {
+    html += `<h3>Resource Request</h3><p>${ask}</p>`;
+  }
+
+  html += `<div class="divider"></div>`;
+  html += `<p style="color:var(--text3);font-size:12px;">This brief was generated using the CyberStrategy Workbench. All data reflects self-reported inputs and should be validated against authoritative sources before board presentation.</p>`;
+
+  document.getElementById('brief-output-box').innerHTML = html;
+  showToast('Executive brief generated');
+}
+
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function copyOutput(id) {
+  const el = document.getElementById(id);
+  const text = el.innerText;
+  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Initialize inner tab logic properly
+document.querySelectorAll('.inner-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    const panel = this.closest('.panel');
+    const targetId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+    // hide siblings
+    const allInner = panel.querySelectorAll('[id]');
+    // handled inline
+  });
+});
+</script>
+</body>
+</html>
